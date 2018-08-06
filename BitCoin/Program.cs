@@ -17,29 +17,45 @@ namespace BitCoin
         {
             int count = 0;
             float valueOdd = 0;
+            Bitcoin m = null;
+            string response = "";
+
             using (var client = new WebClient())
             {
                 while(true)
                 {
+                    try
+                    {
+                        response = client.DownloadString("https://api.coindesk.com/v1/bpi/currentprice.json");
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine("Problem!!");
+                        continue;
+                    }
 
-                    string response = client.DownloadString("https://api.coindesk.com/v1/bpi/currentprice.json");
-
-                    Bitcoin m = JsonConvert.DeserializeObject<Bitcoin>(response);
+                    m = JsonConvert.DeserializeObject<Bitcoin>(response);
 
                     count++;
 
                     string value = m.bpi.usd.rate_float;
+
+                    Console.WriteLine("Date and time: "+m.time.updated);
+                    Console.WriteLine("Current value of Bitcoin: "+ value+" $");
+
                     float valueNew = float.Parse(value, CultureInfo.InvariantCulture.NumberFormat);
                     float average = (valueNew + valueOdd*(count-1)) / count;
                    
 
-                    Console.WriteLine(average);
+                    Console.WriteLine("Average Accumulative of Bitcoin: " + value + " $\n");
                     
                     
                     valueOdd = valueNew;
+
+                        // sleep 5 sec and call api again
                    
-                    // sleep 5 sec and call api again
                     System.Threading.Thread.Sleep(5000);
+
                 }
 
             }
